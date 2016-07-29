@@ -68,3 +68,77 @@ end program.
 
 
 
+begin program.
+#initialize the ad outcomes
+ad_names = ['ba','adidas1','burbury','cola', 'j20','lucazade','mands','mb1','mul', 'samsung', 'spsp','dogfood','asda', 'magnum1','mub','walls' ]
+ad_outcomes = [1,2,1,1, 1,1,2,1,2, 1, 1,2,2, 1,1,1 ]
+
+import spss,spssaux
+
+#vdict=spssaux.VariableDict()
+for i in range(len(ad_names)): 
+    outcome_var_name = ad_names[i]+"_outcome"
+    spss.Submit("COMPUTE "+ad_names[i]+"_outcome = "+str(ad_outcomes[i])+"")
+    spss.Submit(r"""VARIABLE LABELS %s "%s" .""" %(ad_names[i]+"_outcome", "Most preferred "+ad_names[i]+" ad"))
+           
+end program.
+
+begin program.
+#setup the computation vars
+ad_names = ['ba','adidas1','burbury','cola', 'j20','lucazade','mands','mb1','mul', 'samsung', 'spsp','dogfood','asda', 'magnum1','mub','walls' ]
+ad_outcomes = [1,2,1,1, 1,1,2,1,2, 1, 1,2,2, 1,1,1 ]
+
+import spss,spssaux
+
+vdict=spssaux.VariableDict()
+#ss = vdict["ba_score"]
+#print ss
+for ad in ad_names:
+    substr = "a_"+ad+"_"
+    substr2 = "b__1_"+ad+"_"
+    substr_firstfound = False
+    substr2_firstfound = False
+    for variable in vdict:
+       #print ad
+        if substr in str(variable):
+            if not substr_firstfound:
+                print('first found: ', variable, "new name", ad+"_opinion_pref")
+                new_ad_name= ad+"_opinion_pref"
+                
+                spss.Submit("COMPUTE "+new_ad_name+" = "+str(variable)+"")
+                spss.Submit(r"""VARIABLE LABELS %s "%s" .""" %(new_ad_name, variable.VariableLabel))
+                
+                substr_firstfound = True
+            else:
+                new_ad_name= ad+"_prediction_pref"
+                
+                spss.Submit("COMPUTE "+new_ad_name+" = "+str(variable)+"")
+                spss.Submit(r"""VARIABLE LABELS %s "%s" .""" %(new_ad_name, variable.VariableLabel))
+                
+                print('second found: ', variable, "new name", ad+"_prediction_pref")
+
+        elif substr2 in str(variable):
+            if not substr2_firstfound:
+                print('substr2  first found: ', variable, "new name", ad+"_opinion_conf")
+                new_ad_name= ad+"_opinion_conf"
+                
+                spss.Submit("COMPUTE "+new_ad_name+" = "+str(variable)+"")
+                spss.Submit(r"""VARIABLE LABELS %s "%s" .""" %(new_ad_name, "Opinion confidence"+" ("+ad+")"))
+                
+                substr2_firstfound = True
+            else:
+                print('substr2 second found: ', variable, "new name", ad+"_prediction_conf")
+                new_ad_name= ad+"_prediction_conf"
+                
+                spss.Submit("COMPUTE "+new_ad_name+" = "+str(variable)+"")
+                spss.Submit(r"""VARIABLE LABELS %s "%s" .""" %(new_ad_name, variable.VariableLabel +" ("+ad+")"))
+                
+for i in range(len(ad_names)): 
+    outcome_var_name = ad_names[i]+"_outcome"
+    #spss.Submit("COMPUTE "+ad_names[i]+"_outcome = "+str(ad_outcomes[i])+"")
+    #spss.Submit(r"""VARIABLE LABELS %s "%s" .""" %(ad_names[i]+"_outcome", "Most preferred "+ad_names[i]+" ad"))
+           
+end program.
+
+
+
